@@ -1,6 +1,7 @@
 import os
 import time
 import platform
+from datetime import datetime, timezone
 
 app_name = {
     'airtel': 'com.myairtelapp',
@@ -8,6 +9,8 @@ app_name = {
     'tatasky': 'com.ryzmedia.tatasky',
     'vi': 'com.mventus.selfcare.activity'
 }
+
+cur_dir = os.getcwd()
 
 def getTime():
     return str(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
@@ -38,14 +41,14 @@ def connect_device(is_usb):
         print(connect)
 
 def extractAirtel():
-    global app_name
+    global app_name, cur_dir
 
     operator = 'airtel'
 
     os.system('adb shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1')
 
     # Wait while the app opens
-    time.sleep(3)
+    time.sleep(15)
 
     screenshotNum = 0
     curTime = getTime()
@@ -56,9 +59,13 @@ def extractAirtel():
 
     fileName = operator + '-' + getTime() + '.png'
 
-    fullFileName = os.path.join('mobile', 'images', fileName)
+    fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
 
-    # adb exec-out screencap -p > screen.png
+    fullFileName = fullFileName.replace("\\", "/")
+
+    screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
+
+    os.system(screenshotCmd)
 
 
 os.chdir(getPath())
