@@ -47,25 +47,42 @@ def extractAirtel():
 
     os.system('adb shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1')
 
+    init_delay = 15
+
     # Wait while the app opens
-    time.sleep(15)
+    time.sleep(init_delay)
 
     screenshotNum = 0
     curTime = getTime()
 
-    os.system('adb shell input swipe 300 1200 300 800')
+    delay = 3
+    count = 9
+
+    os.system('adb shell input swipe 300 1200 300 750')
     
-    os.system('adb shell input swipe 300 800 200 800')
+    for i in range(count):
 
-    fileName = operator + '-' + getTime() + '.png'
+        fileName = operator + '-1-' + getTime() + '.png'
+        fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
+        fullFileName = fullFileName.replace("\\", "/")
 
-    fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
+        screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
+        os.system(screenshotCmd)
 
-    fullFileName = fullFileName.replace("\\", "/")
+        time.sleep(delay)
+    
+    os.system('adb shell input swipe 300 1200 300 700')
+    
+    for i in range(count):
 
-    screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
+        fileName = operator + '-2-' + getTime() + '.png'
+        fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
+        fullFileName = fullFileName.replace("\\", "/")
 
-    os.system(screenshotCmd)
+        screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
+        os.system(screenshotCmd)
+
+        time.sleep(delay)
 
 
 os.chdir(getPath())
