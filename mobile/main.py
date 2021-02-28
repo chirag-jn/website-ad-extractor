@@ -84,8 +84,44 @@ def extractAirtel():
 
         time.sleep(delay)
 
+def extractJio():
+
+    # Give permissions initially
+
+    global app_name, cur_dir
+
+    operator = 'jio'
+
+    os.system('adb shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1')
+
+    init_delay = 15
+
+    # Wait while the app opens
+    time.sleep(init_delay)
+
+    screenshotNum = 0
+    curTime = getTime()
+
+    delay = 3
+    count = 9
+
+    accel = 10
+    
+    for i in range(count):
+
+        fileName = operator + '-1-' + getTime() + '.png'
+        fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
+        fullFileName = fullFileName.replace("\\", "/")
+
+        screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
+        os.system(screenshotCmd)
+
+        x2 = 230
+
+        os.system('adb shell input swipe 600 600 ' + str(x2) + ' 600')
 
 os.chdir(getPath())
 
 connect_device(is_usb=True)
 extractAirtel()
+extractJio()
