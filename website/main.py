@@ -14,7 +14,7 @@ def getTime():
 
 def initFirebase():
     global bucket
-    cred = credentials.Certificate('serviceAccountKey.json')
+    cred = credentials.Certificate('../serviceAccountKey.json')
     firebase_admin.initialize_app(cred, {
     'storageBucket': 'fuse-9747a.appspot.com'})
     bucket = storage.bucket()
