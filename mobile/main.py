@@ -175,6 +175,19 @@ def extractJio(ip_num):
 
     del_duplicates(operator)
 
+def extractVi(ip_num):
+    global app_name, cur_dir, ips, phones
+
+    operator = 'vi'
+
+    print('Extracting ' +  operator  + ' for ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
+
+    status = os.popen('adb -s ' + ips[ip_num] + ' shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1').read()
+
+    if 'No activities found to run, monkey aborted' in status:
+        print(operator + ' app is not installed')
+        return
+
 initFirebase()
 getIPAddr()
 
@@ -188,4 +201,5 @@ for i in range(len(ips)):
     unlock_device(i)
     extractAirtel(i)
     extractJio(i)
+    extractVi(i)
     disconnect_device()
