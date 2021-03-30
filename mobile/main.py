@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import firebase_admin
 from firebase_admin import credentials, firestore
 from tqdm.auto import tqdm
+from duplicateImages import DuplicateRemover
 
 app_name = {
     'airtel': 'com.myairtelapp',
@@ -60,7 +61,6 @@ def unlock_device(ip_num):
     time.sleep(0.1)
     os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
     time.sleep(1)
-    
 
 def connect_device(ip_num = 0, is_usb = True):
 
@@ -87,6 +87,11 @@ def connect_device(ip_num = 0, is_usb = True):
 
 def disconnect_device():
     os.popen('adb disconnect')
+
+def del_duplicates(operator):
+    pathdr = os.path.join(cur_dir, 'images', operator)
+    dr = DuplicateRemover(pathdr)
+    dr.find_duplicates()
 
 def extractAirtel(ip_num):
     global app_name, cur_dir, ips, phones
@@ -128,6 +133,8 @@ def extractAirtel(ip_num):
             os.system(screenshotCmd)
 
             time.sleep(delay)
+    
+    del_duplicates(operator)
 
 def extractJio():
 
