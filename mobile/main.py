@@ -4,6 +4,7 @@ import platform
 from datetime import datetime, timezone
 import firebase_admin
 from firebase_admin import credentials, firestore
+from tqdm.auto import tqdm
 
 app_name = {
     'airtel': 'com.myairtelapp',
@@ -51,9 +52,21 @@ def getPath():
 
     return path
 
-def connect_device(is_usb):
+def unlock_device(ip_num):
+    global ips, phones
+    print('Unlocking Device ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
 
-    global ips
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 26')
+    time.sleep(0.1)
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
+    time.sleep(1)
+    
+
+def connect_device(ip_num = 0, is_usb = True):
+
+    global ips, phones
+
+    print('Connecting Device ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
 
     if is_usb:
         # Change Port
@@ -67,20 +80,26 @@ def connect_device(is_usb):
     
     else:
         # TODO: Error handling
-        for ip in range(len(ips)):
-            print('Waiting for connection ...')
-            connect = os.popen('adb connect ' + ips[ip]).read()
-            print(connect)
+        # for ip in range(len(ips)):
+        #     print('Waiting for connection ...')
+        connect = os.popen('adb connect ' + ips[ip_num]).read()
+        print(connect)
 
 def disconnect_device():
     os.popen('adb disconnect')
 
-def extractAirtel():
-    global app_name, cur_dir
+def extractAirtel(ip_num):
+    global app_name, cur_dir, ips, phones
 
     operator = 'airtel'
 
-    os.system('adb shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1')
+    print('Extracting ' +  operator  + ' for ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
+
+    status = os.popen('adb -s ' + ips[ip_num] + ' shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1').read()
+
+    if 'No activities found to run, monkey aborted' in status:
+        print(operator + ' app is not installed')
+        return
 
     init_delay = 15
 
@@ -93,31 +112,22 @@ def extractAirtel():
     delay = 3
     count = 9
 
-    os.system('adb shell input swipe 300 1200 300 750')
+    extracted_files = []
+    for loc in tqdm(range(3)):
+        os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 750')
     
-    for i in range(count):
+        for i in range(count):
 
-        fileName = operator + '-1-' + getTime() + '.png'
-        fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
-        fullFileName = fullFileName.replace("\\", "/")
+            fileName = operator + '-' + str(loc)  + '-' + getTime() + '.png'
+            fullFileName = os.path.join(cur_dir, 'images', fileName)
+            fullFileName = fullFileName.replace("\\", "/")
 
-        screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
-        os.system(screenshotCmd)
+            extracted_files.append(fullFileName)
 
-        time.sleep(delay)
-    
-    os.system('adb shell input swipe 300 1200 300 700')
-    
-    for i in range(count):
+            screenshotCmd = 'adb -s ' + ips[ip_num] + ' exec-out screencap -p > ' + fullFileName
+            os.system(screenshotCmd)
 
-        fileName = operator + '-2-' + getTime() + '.png'
-        fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
-        fullFileName = fullFileName.replace("\\", "/")
-
-        screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
-        os.system(screenshotCmd)
-
-        time.sleep(delay)
+            time.sleep(delay)
 
 def extractJio():
 
@@ -160,7 +170,12 @@ getIPAddr()
 
 os.chdir(getPath())
 
-connect_device(is_usb=False)
-# extractAirtel()
-# extractJio()
 disconnect_device()
+
+for i in range(len(ips)):
+
+    connect_device(i, is_usb=False)
+    unlock_device(i)
+    extractAirtel(i)
+    # extractJio()
+    disconnect_device()
