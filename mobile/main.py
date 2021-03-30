@@ -117,17 +117,14 @@ def extractAirtel(ip_num):
     delay = 3
     count = 9
 
-    extracted_files = []
-    for loc in tqdm(range(3)):
+    for loc in range(3):
         os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 750')
     
         for i in range(count):
 
             fileName = operator + '-' + str(loc)  + '-' + getTime() + '.png'
-            fullFileName = os.path.join(cur_dir, 'images', fileName)
+            fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
             fullFileName = fullFileName.replace("\\", "/")
-
-            extracted_files.append(fullFileName)
 
             screenshotCmd = 'adb -s ' + ips[ip_num] + ' exec-out screencap -p > ' + fullFileName
             os.system(screenshotCmd)
@@ -136,15 +133,18 @@ def extractAirtel(ip_num):
     
     del_duplicates(operator)
 
-def extractJio():
-
-    # Give permissions initially
-
-    global app_name, cur_dir
+def extractJio(ip_num):
+    global app_name, cur_dir, ips, phones
 
     operator = 'jio'
 
-    os.system('adb shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1')
+    print('Extracting ' +  operator  + ' for ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
+
+    status = os.popen('adb -s ' + ips[ip_num] + ' shell monkey -p ' + app_name[operator] + ' -c android.intent.category.LAUNCHER 1').read()
+
+    if 'No activities found to run, monkey aborted' in status:
+        print(operator + ' app is not installed')
+        return
 
     init_delay = 15
 
@@ -157,20 +157,23 @@ def extractJio():
     delay = 3
     count = 9
 
-    accel = 10
-    
-    for i in range(count):
+    for loc in range(3):
+        os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 1100')
 
-        fileName = operator + '-1-' + getTime() + '.png'
-        fullFileName = os.path.join(cur_dir, 'mobile', 'images', fileName)
-        fullFileName = fullFileName.replace("\\", "/")
+        for i in range(count):
 
-        screenshotCmd = 'adb exec-out screencap -p > ' + fullFileName
-        os.system(screenshotCmd)
+            fileName = operator  + '-' + str(loc)  + '-' + getTime() + '.png'
+            fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
+            fullFileName = fullFileName.replace("\\", "/")
 
-        x2 = 230
+            screenshotCmd = 'adb -s ' + ips[ip_num] + ' exec-out screencap -p > ' + fullFileName
+            os.system(screenshotCmd)
 
-        os.system('adb shell input swipe 600 600 ' + str(x2) + ' 600')
+            x = 230
+
+            os.system('adb -s ' + ips[ip_num] + ' shell input swipe 600 600 ' + str(x) + ' 600')
+
+    del_duplicates(operator)
 
 initFirebase()
 getIPAddr()
@@ -184,5 +187,5 @@ for i in range(len(ips)):
     connect_device(i, is_usb=False)
     unlock_device(i)
     extractAirtel(i)
-    # extractJio()
+    extractJio(i)
     disconnect_device()
