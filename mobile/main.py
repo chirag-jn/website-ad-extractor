@@ -62,6 +62,12 @@ def unlock_device(ip_num):
     os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
     time.sleep(1)
 
+def lock_device(ip_num):
+    global ips, phones
+    print('Locking Device ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
+
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 26')
+
 def connect_device(ip_num = 0, is_usb = True):
 
     global ips, phones
@@ -202,4 +208,5 @@ for i in range(len(ips)):
     extractAirtel(i)
     extractJio(i)
     extractVi(i)
+    lock_device(i)
     disconnect_device()

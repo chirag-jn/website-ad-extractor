@@ -1,8 +1,13 @@
 # Instructions
+For increasing screen timeout
+1. Go to "Settings App"
+2. Go to "Lock screen"
+3. Choose the "Sleep" option and change sleep time to 10 minutes.
+
 For enabling extraction of screenshots, follow these steps:
 1. Ensure that there's no screen lock on the phone apart from swipe lock.
 2. Complete the set up for a Mi account and a Gmail account.
-3. Go to "Settings App"
+3. Go to "Settings" app
 4. Go to "About phone"
 5. Tap 5 times on MIUI version till the time it doesn't show "No need, you are already a developer"
 6. Go back to the Settings home page
