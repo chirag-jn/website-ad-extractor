@@ -53,6 +53,10 @@ def getPath():
 
     return path
 
+def press_home(ip_num):
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
+    time.sleep(0.3)
+
 def unlock_device(ip_num):
     global ips, phones
     print('Unlocking Device ' + ips[ip_num] + ' with Num: ' + phones[ip_num])
@@ -60,7 +64,10 @@ def unlock_device(ip_num):
     os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 26')
     time.sleep(0.1)
     os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
     time.sleep(1)
+    press_home(ip_num)
 
 def lock_device(ip_num):
     global ips, phones
@@ -99,6 +106,10 @@ def del_duplicates(operator):
     dr = DuplicateRemover(pathdr)
     dr.find_duplicates()
 
+def refresh_app(ip_num):
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 200 300 800')
+    time.sleep(2)
+
 def extractAirtel(ip_num):
     global app_name, cur_dir, ips, phones
 
@@ -117,7 +128,8 @@ def extractAirtel(ip_num):
     # Wait while the app opens
     time.sleep(init_delay)
 
-    screenshotNum = 0
+    refresh_app(ip_num)
+
     curTime = getTime()
 
     delay = 3
@@ -136,6 +148,8 @@ def extractAirtel(ip_num):
             os.system(screenshotCmd)
 
             time.sleep(delay)
+    
+    press_home(ip_num)
     
     del_duplicates(operator)
 
@@ -157,7 +171,8 @@ def extractJio(ip_num):
     # Wait while the app opens
     time.sleep(init_delay)
 
-    screenshotNum = 0
+    refresh_app(ip_num)
+
     curTime = getTime()
 
     delay = 3
@@ -168,7 +183,7 @@ def extractJio(ip_num):
 
         for i in range(count):
 
-            fileName = operator  + '-' + str(loc)  + '-' + getTime() + '.png'
+            fileName = operator + '-' + str(loc)  + '-' + getTime() + '.png'
             fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
             fullFileName = fullFileName.replace("\\", "/")
 
@@ -178,6 +193,8 @@ def extractJio(ip_num):
             x = 230
 
             os.system('adb -s ' + ips[ip_num] + ' shell input swipe 600 600 ' + str(x) + ' 600')
+
+    press_home(ip_num)
 
     del_duplicates(operator)
 
@@ -193,6 +210,48 @@ def extractVi(ip_num):
     if 'No activities found to run, monkey aborted' in status:
         print(operator + ' app is not installed')
         return
+
+    init_delay = 20
+
+    # Wait while the app opens
+    time.sleep(init_delay)
+
+    refresh_app(ip_num)
+
+    curTime = getTime()
+
+    delay = 3
+    count = 10
+
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 1000')
+
+    for i in range(count):
+
+        fileName = operator + '-' + str(1)  + '-' + getTime() + '.png'
+        fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
+        fullFileName = fullFileName.replace("\\", "/")
+
+        screenshotCmd = 'adb -s ' + ips[ip_num] + ' exec-out screencap -p > ' + fullFileName
+        os.system(screenshotCmd)
+
+        os.system('adb -s ' + ips[ip_num] + ' shell input swipe 400 1200 300 1200')
+
+    count = 5
+
+    for i in range(count):
+
+        fileName = operator + '-' + str(1)  + '-' + getTime() + '.png'
+        fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
+        fullFileName = fullFileName.replace("\\", "/")
+
+        screenshotCmd = 'adb -s ' + ips[ip_num] + ' exec-out screencap -p > ' + fullFileName
+        os.system(screenshotCmd)
+
+        os.system('adb -s ' + ips[ip_num] + ' shell input swipe 400 400 300 400')
+
+    press_home(ip_num)
+
+    del_duplicates(operator)
 
 initFirebase()
 getIPAddr()
