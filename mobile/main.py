@@ -55,6 +55,8 @@ def getPath():
 
 def press_home(ip_num):
     os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
     time.sleep(0.3)
 
 def unlock_device(ip_num):
@@ -63,8 +65,6 @@ def unlock_device(ip_num):
 
     os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 26')
     time.sleep(0.1)
-    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
-    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
     os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 700')
     time.sleep(1)
     press_home(ip_num)
@@ -100,6 +100,18 @@ def connect_device(ip_num = 0, is_usb = True):
 
 def disconnect_device():
     os.popen('adb disconnect')
+
+def open_schbang(ip_num):
+    status = os.popen('adb -s ' + ips[ip_num] + ' shell monkey -p ' + 'com.schbang.sxf' + ' -c android.intent.category.LAUNCHER 1').read()
+
+    if 'No activities found to run, monkey aborted' in status:
+        print('Schbang SXF app is not installed')
+        return    
+
+    time.sleep(1)
+
+    press_home(ip_num)
+
 
 def del_duplicates(operator):
     pathdr = os.path.join(cur_dir, 'images', operator)
@@ -264,6 +276,7 @@ for i in range(len(ips)):
 
     connect_device(i, is_usb=False)
     unlock_device(i)
+    open_schbang(i)
     extractAirtel(i)
     extractJio(i)
     extractVi(i)
