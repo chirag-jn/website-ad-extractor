@@ -53,11 +53,23 @@ def getPath():
 
     return path
 
+def back_press(ip_num):
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 4')
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 4')
+    os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 4')
+    time.sleep(0.3)
+
 def press_home(ip_num):
     os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
     os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
     os.system('adb -s ' + ips[ip_num] + ' shell input keyevent 3')
     time.sleep(0.3)
+
+def get_phone_num(ip_num):
+    global phones
+    if ip_num < len(phones):
+        return str(phones[ip_num][3:])
+    return str(0)
 
 def unlock_device(ip_num):
     global ips, phones
@@ -119,8 +131,8 @@ def del_duplicates(operator):
     dr.find_duplicates()
 
 def refresh_app(ip_num):
-    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 200 300 800')
-    time.sleep(2)
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 200 300 1000')
+    time.sleep(3)
 
 def extractAirtel(ip_num):
     global app_name, cur_dir, ips, phones
@@ -152,7 +164,7 @@ def extractAirtel(ip_num):
     
         for i in range(count):
 
-            fileName = operator + '-' + str(loc)  + '-' + getTime() + '.png'
+            fileName = get_phone_num(ip_num) + '-' + operator + '-' + str(loc)  + '-' + getTime() + '.png'
             fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
             fullFileName = fullFileName.replace("\\", "/")
 
@@ -161,6 +173,7 @@ def extractAirtel(ip_num):
 
             time.sleep(delay)
     
+    back_press(ip_num)
     press_home(ip_num)
     
     del_duplicates(operator)
@@ -195,7 +208,7 @@ def extractJio(ip_num):
 
         for i in range(count):
 
-            fileName = operator + '-' + str(loc)  + '-' + getTime() + '.png'
+            fileName = get_phone_num(ip_num) + '-' + operator + '-' + str(loc)  + '-' + getTime() + '.png'
             fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
             fullFileName = fullFileName.replace("\\", "/")
 
@@ -206,6 +219,7 @@ def extractJio(ip_num):
 
             os.system('adb -s ' + ips[ip_num] + ' shell input swipe 600 600 ' + str(x) + ' 600')
 
+    back_press(ip_num)
     press_home(ip_num)
 
     del_duplicates(operator)
@@ -235,11 +249,11 @@ def extractVi(ip_num):
     delay = 3
     count = 10
 
-    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 1000')
+    os.system('adb -s ' + ips[ip_num] + ' shell input swipe 300 1200 300 900')
 
     for i in range(count):
 
-        fileName = operator + '-' + str(1)  + '-' + getTime() + '.png'
+        fileName = get_phone_num(ip_num) + '-' + operator + '-' + str(1)  + '-' + getTime() + '.png'
         fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
         fullFileName = fullFileName.replace("\\", "/")
 
@@ -252,7 +266,7 @@ def extractVi(ip_num):
 
     for i in range(count):
 
-        fileName = operator + '-' + str(1)  + '-' + getTime() + '.png'
+        fileName = operator + '-' + str(2)  + '-' + getTime() + '.png'
         fullFileName = os.path.join(cur_dir, 'images', operator, fileName)
         fullFileName = fullFileName.replace("\\", "/")
 
@@ -261,6 +275,7 @@ def extractVi(ip_num):
 
         os.system('adb -s ' + ips[ip_num] + ' shell input swipe 400 400 300 400')
 
+    back_press(ip_num)
     press_home(ip_num)
 
     del_duplicates(operator)
@@ -280,5 +295,6 @@ for i in range(len(ips)):
     extractAirtel(i)
     extractJio(i)
     extractVi(i)
+    open_schbang(i)
     lock_device(i)
     disconnect_device()
