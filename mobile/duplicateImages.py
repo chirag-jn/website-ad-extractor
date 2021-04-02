@@ -6,6 +6,9 @@ import os
 import numpy as np
 
 class DuplicateRemover:
+
+    extensions = ['png', 'jpg', 'jpeg', 'gif']
+
     def __init__(self,dirname,hash_size = 8):
         self.dirname = dirname
         self.hash_size = hash_size
@@ -21,7 +24,7 @@ class DuplicateRemover:
         if verbose:
             print("Finding Duplicates Now!")
         for image in fnames:
-            if '.png' in image.lower() or '.jpg' in image.lower() or '.jpeg' in image.lower():
+            if list(image.lower().split('.'))[-1] in self.extensions:
                 with Image.open(os.path.join(self.dirname,image)) as img:
                     temp_hash = imagehash.average_hash(img, self.hash_size)
                     if temp_hash in hashes:
@@ -67,7 +70,7 @@ class DuplicateRemover:
         
         print("Finding Similar Images to {} Now!\n".format(location))
         for image in fnames:
-            if '.png' in image.lower() or '.jpg' in image.lower() or '.jpeg' in image.lower():
+            if list(image.lower().split('.'))[-1] in self.extensions:
                 with Image.open(os.path.join(self.dirname,image)) as img:
                     hash2 = imagehash.average_hash(img, self.hash_size).hash
                     

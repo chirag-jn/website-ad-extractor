@@ -29,7 +29,7 @@ def initFirebase():
 
 def getIPAddr():
     global db, phones, ips
-    docs = db.collection('ip-debug').stream()
+    docs = db.collection('ip').stream()
     phones = []
     ips = []
     for doc in docs:
