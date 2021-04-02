@@ -29,12 +29,14 @@ def initFirebase():
 
 def getIPAddr():
     global db, phones, ips
-    docs = db.collection('ip').stream()
-    phones = []
-    ips = []
-    for doc in docs:
-        phones.append(doc.id)
-        ips.append(doc.to_dict()['ip'])
+    # docs = db.collection('ip').stream()
+    # phones = []
+    # ips = []
+    # for doc in docs:
+    #     phones.append(doc.id)
+    #     ips.append(doc.to_dict()['ip'])
+    phones = ['+917710080257', '+918591018445']
+    ips = [ "192.168.0.107", "192.168.0.110"]
 
 def getTime():
     return str(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
