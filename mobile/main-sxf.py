@@ -291,8 +291,6 @@ for i in range(len(ips)):
 
     connect_device(i, is_usb=False)
     unlock_device(i)
-    extractAirtel(i)
-    extractJio(i)
-    extractVi(i)
+    open_schbang(i)
     lock_device(i)
     disconnect_device()
