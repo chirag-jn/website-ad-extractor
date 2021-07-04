@@ -68,20 +68,26 @@ def getEmails(cred):
 
     email_id = cred['email']
     password = cred['password']
+
+    # print('\nWorking on:', email_id)
     
     imap = getImap()
     
     try:
         imap.login(email_id, password)
     except Exception as e:
+        print(email_id, end='\t')
         print(e)
-        print(email_id)
+        return
     
     status, messages = imap.select("INBOX")
-    N = 10
+    N = 1000
     num_messages = int(messages[0])
-    print(num_messages)
-    for i in range(num_messages, num_messages - N, -1):
+    # print(num_messages)
+    N = num_messages
+
+    for i in tqdm(range(num_messages,num_messages - N, -1), leave=False):
+
         res, msg = imap.fetch(str(i), "(RFC822)")
         for response in msg:
             if isinstance(response, tuple):
@@ -96,6 +102,7 @@ def getEmails(cred):
                 From, encoding = decode_header(msg.get("From"))[0]
                 if isinstance(From, bytes):
                     From = From.decode(encoding)
+                
                 print("Subject:", subject)
                 print("From:", From)
                 # if the email message is multipart
@@ -153,5 +160,5 @@ def getEmails(cred):
 if __name__ == '__main__':
     initFirebase()
     creds = getEmailIdsFromFirebase()
-    for cred in creds:
+    for cred in tqdm(creds):
         getEmails(cred)
