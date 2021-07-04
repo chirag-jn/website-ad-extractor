@@ -5,6 +5,7 @@ import email
 from email.header import decode_header
 import webbrowser
 import os
+import sys
 import pandas as pd
 from tqdm.auto import tqdm
 
@@ -30,23 +31,43 @@ def getImap():
     else:
         return _imap
 
+def getDbName():
+    try:
+        _ = sys.argv[1]
+        print('Selecting creds-debug DB')
+        return 'creds-debug'
+    except:
+        print('Selecting creds DB')
+        return 'creds'
+
 def writeEmailsToFirebase():
     global db
     for i, row in tqdm(getEmailIds().iterrows()):
         email_id = row['email']
         password = row['password']
         mobile = row['mobile']
-        doc_ref = db.collection('creds').document(str(email_id))
+        doc_ref = db.collection(getDbName()).document(str(email_id))
         doc_ref.set({
             'email': email_id,
             'password': password,
             'mobile': mobile
         })
 
+def getEmailIdsFromFirebase():
+    global db
+    records = []
+    for record in db.collection(getDbName()).stream():
+        doc = record.to_dict()
+        records.append(doc)
+    return records
+
 def clean(text):
     return "".join(c if c.isalnum() else "_" for c in text)
 
-def getEmails(email_id, password):
+def getEmails(cred):
+
+    email_id = cred['email']
+    password = cred['password']
     
     imap = getImap()
     
@@ -131,4 +152,6 @@ def getEmails(email_id, password):
 
 if __name__ == '__main__':
     initFirebase()
-    writeEmailsToFirebase()
+    creds = getEmailIdsFromFirebase()
+    for cred in creds:
+        getEmails(cred)
