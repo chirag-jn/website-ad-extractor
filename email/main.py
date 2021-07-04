@@ -6,6 +6,7 @@ from email.header import decode_header
 import webbrowser
 import os
 import pandas as pd
+from tqdm.auto import tqdm
 
 db = None
 _imap = None
@@ -29,23 +30,36 @@ def getImap():
     else:
         return _imap
 
+def writeEmailsToFirebase():
+    global db
+    for i, row in tqdm(getEmailIds().iterrows()):
+        email_id = row['email']
+        password = row['password']
+        mobile = row['mobile']
+        doc_ref = db.collection('creds').document(str(email_id))
+        doc_ref.set({
+            'email': email_id,
+            'password': password,
+            'mobile': mobile
+        })
+
 def clean(text):
-    # clean text for creating a folder
     return "".join(c if c.isalnum() else "_" for c in text)
 
 def getEmails(email_id, password):
+    
     imap = getImap()
+    
     try:
         imap.login(email_id, password)
-        imap.authenticate()
-        imap.logout()
     except Exception as e:
         print(e)
         print(email_id)
-    # return
+    
     status, messages = imap.select("INBOX")
     N = 10
     num_messages = int(messages[0])
+    print(num_messages)
     for i in range(num_messages, num_messages - N, -1):
         res, msg = imap.fetch(str(i), "(RFC822)")
         for response in msg:
@@ -77,7 +91,6 @@ def getEmails(email_id, password):
                             pass
                         if content_type == "text/plain" and "attachment" not in content_disposition:
                             # print text/plain emails and skip attachments
-                            pass
                             print(body)
                         elif "attachment" in content_disposition:
                             # download attachment
@@ -89,7 +102,7 @@ def getEmails(email_id, password):
                                     os.mkdir(folder_name)
                                 filepath = os.path.join(folder_name, filename)
                                 # download attachment and save it
-                                # open(filepath, "wb").write(part.get_payload(decode=True))
+                                open(filepath, "wb").write(part.get_payload(decode=True))
                 else:
                     # extract content type of email
                     content_type = msg.get_content_type()
@@ -97,7 +110,6 @@ def getEmails(email_id, password):
                     body = msg.get_payload(decode=True).decode()
                     if content_type == "text/plain":
                         # print only text email parts
-                        pass
                         print(body)
                 if content_type == "text/html":
                     # if it's HTML, create a new HTML file and open it in browser
@@ -108,7 +120,6 @@ def getEmails(email_id, password):
                     filename = "index.html"
                     filepath = os.path.join(folder_name, filename)
                     # write the file
-                    pass
                     open(filepath, "w").write(body)
                     # open in the default browser
                     webbrowser.open(filepath)
@@ -118,10 +129,6 @@ def getEmails(email_id, password):
     imap.logout()
 
 
-
 if __name__ == '__main__':
-    for i, row in getEmailIds().iterrows():
-        email_id = row['email']
-        password = row['password']
-        getEmails(email_id, password)
-        break
+    initFirebase()
+    writeEmailsToFirebase()
