@@ -37,10 +37,12 @@ def getEmails(email_id, password):
     imap = getImap()
     try:
         imap.login(email_id, password)
+        imap.authenticate()
         imap.logout()
     except Exception as e:
         print(e)
         print(email_id)
+    # return
     status, messages = imap.select("INBOX")
     N = 10
     num_messages = int(messages[0])
@@ -75,6 +77,7 @@ def getEmails(email_id, password):
                             pass
                         if content_type == "text/plain" and "attachment" not in content_disposition:
                             # print text/plain emails and skip attachments
+                            pass
                             print(body)
                         elif "attachment" in content_disposition:
                             # download attachment
@@ -86,7 +89,7 @@ def getEmails(email_id, password):
                                     os.mkdir(folder_name)
                                 filepath = os.path.join(folder_name, filename)
                                 # download attachment and save it
-                                open(filepath, "wb").write(part.get_payload(decode=True))
+                                # open(filepath, "wb").write(part.get_payload(decode=True))
                 else:
                     # extract content type of email
                     content_type = msg.get_content_type()
@@ -94,6 +97,7 @@ def getEmails(email_id, password):
                     body = msg.get_payload(decode=True).decode()
                     if content_type == "text/plain":
                         # print only text email parts
+                        pass
                         print(body)
                 if content_type == "text/html":
                     # if it's HTML, create a new HTML file and open it in browser
@@ -104,6 +108,7 @@ def getEmails(email_id, password):
                     filename = "index.html"
                     filepath = os.path.join(folder_name, filename)
                     # write the file
+                    pass
                     open(filepath, "w").write(body)
                     # open in the default browser
                     webbrowser.open(filepath)
@@ -119,3 +124,4 @@ if __name__ == '__main__':
         email_id = row['email']
         password = row['password']
         getEmails(email_id, password)
+        break
