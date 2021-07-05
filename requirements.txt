@@ -4,6 +4,7 @@ cachetools==4.2.1
 certifi==2020.12.5
 cffi==1.14.4
 chardet==4.0.0
+et-xmlfile==1.1.0
 firebase-admin==4.5.1
 google-api-core==1.26.0
 google-api-python-client==1.12.8
@@ -24,6 +25,7 @@ ImageHash==4.2.0
 lxml==4.6.2
 msgpack==1.0.2
 numpy==1.20.1
+openpyxl==3.0.7
 packaging==20.9
 pandas==1.2.3
 Pillow==8.1.2
