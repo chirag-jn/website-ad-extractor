@@ -148,7 +148,7 @@ def getEmails():
 
 if __name__ == '__main__':
     initFirebase()
-    # getSMS()
-    # getNotifications()
+    getSMS()
+    getNotifications()
     getNotificationsImages()
-    # getEmails()
+    getEmails()
