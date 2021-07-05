@@ -34,6 +34,20 @@ def getDbName(type):
         if type == 4:
             return 'sms'
 
+def saveDf(dicts, type):
+    df = pd.DataFrame(dicts)
+    try:
+        df.to_excel(getDbName(type) + '-' + getTime() + '.xlsx')
+    except:
+        print('Error in saving xlsx, saving csv')
+        df.to_csv(getDbName(type) + '-' + getTime() + '.csv')
+    print(getDbName(type) + ' Saved')
+
+def getStream(type):
+    print('Getting ' + getDbName(type))
+    docs = db.collection(getDbName(type)).stream()
+    return docs
+
 def initFirebase():
     global db
     cred = credentials.Certificate('../serviceAccountKey.json')
@@ -42,27 +56,57 @@ def initFirebase():
     print('Database Connected')
 
 def getSMS():
-    print('Getting SMS')
-    docs = db.collection('sms').stream()
+    type = 4
+    docs = getStream(type)
+
     dicts = []
     for doc in docs:
         dicts.append(doc.to_dict())
 
-    df = pd.DataFrame(dicts)
-    df.to_csv('sms-' + getTime() + '.csv')
-    print('SMS Saved')
+    saveDf(dicts, type)
 
 def getNotifications():
-    print('Getting Notifications')
-    docs = db.collection('notifications').stream()
+    type = 2
+    docs = getStream(type)
+
     dicts = []
     for doc in docs:
         dicts.append(doc.to_dict())
 
-    df = pd.DataFrame(dicts)
-    df.to_csv('notifications-' + getTime() + '.csv')
-    print('Notifications Saved')
+    saveDf(dicts, type)
 
-initFirebase()
-getSMS()
-getNotifications()
+def getNotificationsImages():
+    type = 3
+    docs = getStream(type)
+
+    dicts = []
+    for doc in docs:
+        dicts.append(doc.to_dict())
+
+    saveDf(dicts, type)
+
+def getEmails():
+    type = 1
+    docs = getStream(type)
+
+    dicts = []
+    for doc in docs:
+        dic = doc.to_dict()
+        resp = {
+            'operator': dic['reason'],
+            'phone': dic['mobile'],
+            'email': dic['receiver'],
+            'sender': dic['sender'],
+            'time': dic['time'],
+            'subject': dic['subject'],
+            'body': dic['body']
+        }
+        dicts.append(resp)
+
+    saveDf(dicts, type)
+
+if __name__ == '__main__':
+    initFirebase()
+    # getSMS()
+    # getNotificationsImages()
+    getEmails()
