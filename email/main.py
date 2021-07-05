@@ -91,6 +91,7 @@ def getEmails(cred):
 
     email_id = cred['email']
     password = cred['password']
+    mobile_num = cred['mobile']
     
     imap = getImap()
     
@@ -117,6 +118,7 @@ def getEmails(cred):
                     'time': '',
                     'subject': '',
                     'receiver': '',
+                    'mobile': '',
                     'sender': '',
                     'body': '',
                     'reason': ''
@@ -129,7 +131,8 @@ def getEmails(cred):
 
                 mail_object['subject'] = str(subject)
                 mail_object['time'] = str(date)
-                mail_object['receiver'] = str(receiver)
+                mail_object['receiver'] = str(receiver).lower()
+                mail_object['mobile'] = str(mobile_num)
 
                 if isinstance(subject, bytes):
                     try:
