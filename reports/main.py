@@ -1,12 +1,38 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 import pandas as pd
+import sys
 from datetime import timezone, datetime
 
 db = None
 
 def getTime():
     return str(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
+
+def getDbName(type):
+    try:
+        _ = sys.argv[1]
+        if type == 0:
+            return 'ip-debug'
+        if type == 1:
+            return 'emails'
+        if type == 2:
+            return 'notifications-debug'
+        if type == 3:
+            return 'notifications-images-debug'
+        if type == 4:
+            return 'sms-debug'
+    except:
+        if type == 0:
+            return 'ip'
+        if type == 1:
+            return 'emails'
+        if type == 2:
+            return 'notifications'
+        if type == 3:
+            return 'notifications-images'
+        if type == 4:
+            return 'sms'
 
 def initFirebase():
     global db
