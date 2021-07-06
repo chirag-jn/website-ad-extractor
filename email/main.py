@@ -11,7 +11,6 @@ import html2text
 import re
 
 db = None
-_imap = None
 htmlHandler = html2text.HTML2Text()
 htmlHandler.ignore_links = True
 htmlHandler.escape_snob = True
@@ -24,12 +23,8 @@ def initFirebase():
     print('Database Connected')
 
 def getImap():
-    global _imap
-    if _imap is None:
-        _imap = imaplib.IMAP4_SSL("imap.gmail.com")
-        return _imap
-    else:
-        return _imap
+    _imap = imaplib.IMAP4_SSL("imap.gmail.com")
+    return _imap
 
 def getDbName():
     try:
