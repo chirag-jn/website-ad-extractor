@@ -190,6 +190,11 @@ def getEmails():
             'subject': str(dic['subject']).strip(),
             'body': str(dic['body']).strip()
         }
+
+        bodyContainsVideo = checkIfBodyContainsVideo(resp['body'])
+        if bodyContainsVideo:
+            resp['ott'] = bodyContainsVideo
+
         dicts.append(resp)
 
     saveDf(dicts, type)
