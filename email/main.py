@@ -39,8 +39,8 @@ def writeEmailsToFirebase():
     global db
     df = pd.read_csv('emails.csv')
     for i, row in tqdm(df.iterrows()):
-        email_id = row['email']
-        password = row['password']
+        email_id = row['email'].strip()
+        password = row['password'].strip()
         mobile = row['mobile']
         doc_ref = db.collection(getDbName()).document(str(email_id))
         doc_ref.set({
@@ -96,7 +96,7 @@ def getEmails(cred):
         print(email_id, end='\t')
         print(e)
         return
-    
+
     status, messages = imap.select("INBOX")
     N = 1000
     num_messages = int(messages[0])
@@ -188,6 +188,7 @@ def getEmails(cred):
 
 if __name__ == '__main__':
     initFirebase()
+    # writeEmailsToFirebase()
     creds = getEmailIdsFromFirebase()
     for cred in creds:
         print('Parsing Email:', cred['email'])
