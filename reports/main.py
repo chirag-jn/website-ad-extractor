@@ -6,6 +6,7 @@ import re
 from datetime import timezone, datetime
 
 db = None
+phoneNums = None
 
 def getTime():
     return str(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
@@ -23,6 +24,8 @@ def getDbName(type):
             return 'notifications-images-debug'
         if type == 4:
             return 'sms-debug'
+        if type == 5:
+            return 'phones-debug'
     except:
         if type == 0:
             return 'ip'
@@ -34,7 +37,23 @@ def getDbName(type):
             return 'notifications-images'
         if type == 4:
             return 'sms'
+        if type == 5:
+            return 'phones'
 
+def getStream(type):
+    print('Getting ' + getDbName(type))
+    docs = db.collection(getDbName(type)).stream()
+    return docs
+
+def getPhoneNumDeets(phoneNum):
+    global phoneNums
+    if phoneNums is None:
+        phoneNums = {}
+        docs = getStream(5)
+        for doc in docs:
+            phoneNums[doc.id] = doc.to_dict()
+    return phoneNums[phoneNum]
+        
 def saveDf(dicts, type):
     df = pd.DataFrame(dicts)
     try:
@@ -44,11 +63,6 @@ def saveDf(dicts, type):
         print(e)
         df.to_csv(getDbName(type) + '-' + getTime() + '.csv')
     print(getDbName(type) + ' Saved')
-
-def getStream(type):
-    print('Getting ' + getDbName(type))
-    docs = db.collection(getDbName(type)).stream()
-    return docs
 
 def initFirebase():
     global db
@@ -201,6 +215,7 @@ def getEmails():
 
 if __name__ == '__main__':
     initFirebase()
+    getPhoneNumDeets(1)
     getSMS()
     getNotifications()
     getEmails()
