@@ -26,14 +26,22 @@ def getImap():
     _imap = imaplib.IMAP4_SSL("imap.gmail.com")
     return _imap
 
-def getDbName():
+def getDbName(type=1):
     try:
         _ = sys.argv[1]
-        print('Selecting creds-debug DB')
-        return 'creds-debug'
+        if type == 1:
+            print('Selecting creds-debug DB')
+            return 'creds-debug'
+        elif type == 2:
+            print('Selecting phones-debug DB')
+            return 'phones-debug'
     except:
-        print('Selecting creds DB')
-        return 'creds'
+        if type == 1:
+            print('Selecting creds DB')
+            return 'creds'
+        elif type == 2:
+            print('Selecting phones DB')
+            return 'phones'
 
 def writeEmailsToFirebase():
     global db
@@ -47,6 +55,22 @@ def writeEmailsToFirebase():
             'email': email_id,
             'password': password,
             'mobile': mobile
+        })
+
+def writePhonesToFirebase():
+    global db
+    df = pd.read_csv('phones.csv')
+    for i, row in tqdm(df.iterrows()):
+        mobile = row['mobile']
+        operator = row['operator'].strip()
+        plan = row['plan'].strip()
+        region = row['region'].strip()
+        doc_ref = db.collection(getDbName(type=2)).document(str(mobile))
+        doc_ref.set({
+            'mobile': mobile,
+            'operator': operator,
+            'plan': plan,
+            'region': region
         })
 
 def getEmailIdsFromFirebase():
@@ -189,6 +213,7 @@ def getEmails(cred):
 if __name__ == '__main__':
     initFirebase()
     # writeEmailsToFirebase()
+    # writePhonesToFirebase()
     creds = getEmailIdsFromFirebase()
     for cred in creds:
         print('Parsing Email:', cred['email'])
