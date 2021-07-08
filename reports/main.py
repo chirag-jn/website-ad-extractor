@@ -51,8 +51,15 @@ def getPhoneNumDeets(phoneNum):
         phoneNums = {}
         docs = getStream(5)
         for doc in docs:
-            phoneNums[doc.id] = doc.to_dict()
-    return phoneNums[phoneNum]
+            phoneNums[str(doc.id)] = doc.to_dict()
+    try:
+        if '+91' in str(phoneNum):
+            phoneNum = int(str(phoneNum)[3:])
+        return phoneNums[str(phoneNum)]
+    except:
+        print('Phone number mapping not found for ' + str(phoneNum))
+        return {'region': '', 'mobile': phoneNum, 
+                'plan': '', 'operator': ''}
         
 def saveDf(dicts, type):
     df = pd.DataFrame(dicts)
@@ -100,10 +107,18 @@ def getSMS():
             'operator': dic['operator'],
             'ott': 'none',
             'phone': dic['phone'],
+            'provider': '',
+            'plan': '',
+            'region': '',
             'sender': dic['address'],
             'time': str(dic['time']),
             'body': str(dic['body']).strip()
         }
+
+        phone_deets = getPhoneNumDeets(resp['phone'])
+        resp['provider'] = phone_deets['operator']
+        resp['plan'] = phone_deets['plan']
+        resp['region'] = phone_deets['region']
         
         bodyContainsVideo = checkIfBodyContainsVideo(resp['body'])
         if bodyContainsVideo:
@@ -123,6 +138,9 @@ def getNotifications():
         resp = {
             'operator': dic['operator'],
             'phone': dic['phone'],
+            'provider': '',
+            'plan': '',
+            'region': '',
             'app': dic['packageName'],
             'ott': 'none',
             'time': str(dic['time']),
@@ -131,6 +149,12 @@ def getNotifications():
             'imageURL': '',
             'body': dic['text']
         }
+
+        phone_deets = getPhoneNumDeets(resp['phone'])
+        resp['provider'] = phone_deets['operator']
+        resp['plan'] = phone_deets['plan']
+        resp['region'] = phone_deets['region']
+
         if 'displayText' in dic and not str(resp['body']).__contains__(dic['displayText']):
             resp['body'] = resp['body'] + '\n' + dic['displayText']
         if 'info' in dic and not str(resp['body']).__contains__(dic['info']):
@@ -155,6 +179,9 @@ def getNotifications():
         resp = {
             'operator': '',
             'phone': dic['phone'],
+            'provider': '',
+            'plan': '',
+            'region': '',
             'app': dic['packageName'],
             'ott': 'none',
             'time': str(dic['time']),
@@ -163,6 +190,12 @@ def getNotifications():
             'imageURL': dic['downloadURL'],
             'body': dic['text']
         }
+
+        phone_deets = getPhoneNumDeets(resp['phone'])
+        resp['provider'] = phone_deets['operator']
+        resp['plan'] = phone_deets['plan']
+        resp['region'] = phone_deets['region']
+
         if 'tata' in resp['app']:
             resp['operator'] = 'tatasky'
         elif 'jio' in resp['app']:
@@ -198,12 +231,20 @@ def getEmails():
             'operator': dic['reason'],
             'ott': 'none',
             'phone': dic['mobile'],
+            'provider': '',
+            'plan': '',
+            'region': '',
             'email': dic['receiver'],
             'sender': dic['sender'],
             'time': str(dic['time']),
             'subject': str(dic['subject']).strip(),
             'body': str(dic['body']).strip()
         }
+
+        phone_deets = getPhoneNumDeets(resp['phone'])
+        resp['provider'] = phone_deets['operator']
+        resp['plan'] = phone_deets['plan']
+        resp['region'] = phone_deets['region']
 
         bodyContainsVideo = checkIfBodyContainsVideo(resp['body'])
         if bodyContainsVideo:
@@ -215,7 +256,6 @@ def getEmails():
 
 if __name__ == '__main__':
     initFirebase()
-    getPhoneNumDeets(1)
     getSMS()
     getNotifications()
     getEmails()
