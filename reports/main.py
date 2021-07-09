@@ -175,48 +175,51 @@ def getNotifications():
     docs = getStream(type)
 
     for doc in docs:
-        dic = doc.to_dict()
-        resp = {
-            'operator': '',
-            'phone': dic['phone'],
-            'provider': '',
-            'plan': '',
-            'region': '',
-            'app': dic['packageName'],
-            'ott': 'none',
-            'time': str(dic['time']),
-            'title': str(dic['title']).strip(),
-            'has_image': True,
-            'imageURL': dic['downloadURL'],
-            'body': dic['text']
-        }
+        try:  
+            dic = doc.to_dict()
+            resp = {
+                'operator': '',
+                'phone': dic['phone'],
+                'provider': '',
+                'plan': '',
+                'region': '',
+                'app': dic['packageName'],
+                'ott': 'none',
+                'time': str(dic['time']),
+                'title': str(dic['title']).strip(),
+                'has_image': True,
+                'imageURL': dic['downloadURL'],
+                'body': dic['text']
+            }
 
-        phone_deets = getPhoneNumDeets(resp['phone'])
-        resp['provider'] = phone_deets['operator']
-        resp['plan'] = phone_deets['plan']
-        resp['region'] = phone_deets['region']
+            phone_deets = getPhoneNumDeets(resp['phone'])
+            resp['provider'] = phone_deets['operator']
+            resp['plan'] = phone_deets['plan']
+            resp['region'] = phone_deets['region']
 
-        if 'tata' in resp['app']:
-            resp['operator'] = 'tatasky'
-        elif 'jio' in resp['app']:
-            resp['operator'] = 'jio'
-        elif 'airtel' in resp['app']:
-            resp['operator'] = 'airtel'
-        else:
-            resp['operator'] = 'vi'
-        if 'displayText' in dic and not str(resp['body']).__contains__(dic['displayText']):
-            resp['body'] = resp['body'] + '\n' + dic['displayText']
-        if 'info' in dic and not str(resp['body']).__contains__(dic['info']):
-            resp['body'] = resp['body'] + '\n' + dic['info']
-        if 'summary' in dic and not str(resp['body']).__contains__(dic['summary']):
-            resp['body'] = resp['body'] + '\n' + dic['summary']
-        resp['body'] = resp['body'].strip()
+            if 'tata' in resp['app']:
+                resp['operator'] = 'tatasky'
+            elif 'jio' in resp['app']:
+                resp['operator'] = 'jio'
+            elif 'airtel' in resp['app']:
+                resp['operator'] = 'airtel'
+            else:
+                resp['operator'] = 'vi'
+            if 'displayText' in dic and not str(resp['body']).__contains__(dic['displayText']):
+                resp['body'] = resp['body'] + '\n' + dic['displayText']
+            if 'info' in dic and not str(resp['body']).__contains__(dic['info']):
+                resp['body'] = resp['body'] + '\n' + dic['info']
+            if 'summary' in dic and not str(resp['body']).__contains__(dic['summary']):
+                resp['body'] = resp['body'] + '\n' + dic['summary']
+            resp['body'] = resp['body'].strip()
 
-        bodyContainsVideo = checkIfBodyContainsVideo(resp['body'])
-        if bodyContainsVideo:
-            resp['ott'] = bodyContainsVideo
+            bodyContainsVideo = checkIfBodyContainsVideo(resp['body'])
+            if bodyContainsVideo:
+                resp['ott'] = bodyContainsVideo
 
-        dicts.append(resp)
+            dicts.append(resp)
+        except:
+            continue
 
     saveDf(dicts, 2)
 
